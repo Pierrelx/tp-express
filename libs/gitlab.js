@@ -32,7 +32,6 @@ class GitLabApi {
 
     listRecentIssues = function() {
         return new Promise((resolve, reject) => {
-            console.log("listRecentIssues");
             let url = this.url + '/projects/' + this.project_id + '/issues'
     
             var issues = [];
@@ -64,10 +63,10 @@ class GitLabApi {
             axios.get(issuesStats)
             .then(
                 data => {
-                    // console.log("issues ouvertes : "+data.data.statistics.counts.opened)
-                    // console.log("issues fermées : "+data.data.statistics.counts.closed)
-                    // console.log('serv:'+JSON.stringify({opened: data.data.statistics.counts.opened, closed: data.data.statistics.counts.closed}))
-                    resolve({opened: data.data.statistics.counts.opened, closed: data.data.statistics.counts.closed})
+                    let opened = data.data.statistics.counts.opened;
+                let closed = data.data.statistics.counts.closed;
+                console.log(chalk`\tissuesStats--> {yellow ${opened} opened} / {green ${closed} closed}`)
+                    resolve({opened: opened, closed: closed})
                 }
             )
             .catch(err => {
@@ -119,45 +118,41 @@ class GitLabApi {
     }
     
     averageOpenTime = function(dateDebut,dateFin) {
-        if(!isValidDateRange(dateDebut, dateFin)) {
-            return;
-        }
-        //Prend en paramètre une date de début et une date de fin. 
-        let url = this.url + '/projects/' + this.project_id + '/issues?created_after='+dateDebut+'&created_before='+dateFin
-        console.log(url)
-        var issues = [];
-        var totalDays = 0;
-        var avgDays;
-        var avgTime;
-        var totalTime = 0;
-    
-        axios.get(url)
-        .then(
-            data => {                
-                let validIssues = data.data.filter((item) => {
-                    if(!item.closed_at || !item.created_at) {
-                        console.log(chalk`Skipped issue n°${item.iid} (created_at = {yellow ${item.created_at}}, closed_at = {yellow ${item.closed_at})}`)
-                        return false;
-                    }
-                    return true
-                });
-                let average = validIssues
-                    .reduce((acc, item) => {                        
-                        let closed_at = new Date(item.closed_at);
-                        let created_at = new Date(item.created_at);
-                        let diff = closed_at.getTime() - created_at.getTime()
-                        let diffInDays = diff / (1000 * 3600 * 24);  //1d = 24h * 3600s * 1000ms
-                        console.log(chalk`Issue n°{greenBright ${item.iid}} closed in {greenBright ${diffInDays.toFixed(2)} days} (${diff.toFixed()} ms) {green ${item.created_at}} -> {green ${item.closed_at}}`)
-                        return acc + diffInDays;
-                    }, 0) / validIssues.length;
+        // if(!this.isValidDateRange(dateDebut, dateFin)) {
+        //     return;
+        // }
+        return new Promise((resolve, reject) => {
+            //Prend en paramètre une date de début et une date de fin. 
+            let url = this.url + '/projects/' + this.project_id + '/issues?created_after='+dateDebut+'&created_before='+dateFin
+                
+            axios.get(url)
+            .then(
+                data => {                
+                    let validIssues = data.data.filter((item) => {
+                        if(!item.closed_at || !item.created_at) {
+                            console.log(chalk`Skipped issue n°${item.iid} (created_at = {yellow ${item.created_at}}, closed_at = {yellow ${item.closed_at})}`)
+                            return false;
+                        }
+                        return true
+                    });
+                    let average = validIssues
+                        .reduce((acc, item) => {                        
+                            let closed_at = new Date(item.closed_at);
+                            let created_at = new Date(item.created_at);
+                            let diff = closed_at.getTime() - created_at.getTime()
+                            let diffInDays = diff / (1000 * 3600 * 24);  //1d = 24h * 3600s * 1000ms
+                            console.log(chalk`Issue n°{greenBright ${item.iid}} closed in {greenBright ${diffInDays.toFixed(2)} days} (${diff.toFixed()} ms) {green ${item.created_at}} -> {green ${item.closed_at}}`)
+                            return acc + diffInDays;
+                        }, 0) / validIssues.length;
 
-                console.log(chalk`Avg: {red.bold ${average.toFixed(2)}d}/issue`);
-                return average.toFixed(2);
-            }
-        )
-        .catch(err => {
-            console.log(chalk.red(err));
-            return;
+                    // console.log(chalk`Avg: {red.bold ${average.toFixed(2)}d}/issue`);
+                    resolve(average.toFixed(2));
+                }
+            )
+            .catch(err => {
+                console.log(chalk.red(err));
+                reject();
+            })
         })
     }
 }

@@ -39,6 +39,18 @@
                 }
             })
 
+            $.ajax({
+                url: '/avg-time',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data){
+                    createAvgBar(data);
+                },
+                error: function (err){
+                    console.log(err);
+                }
+            })
+
             $('#issues').DataTable();
         })
     </script>
@@ -78,9 +90,11 @@
         </table>
         <hr>
         <h4>Temps d'ouverture des tickets</h4>
+        <div id="bar-average" style="height: 300px;"></div>
 
         <hr>
         <h4>Nombre d'issue ouvertes par jour</h4>
+        <div id="bar-days" style="height: 300px;"></div>
 
     </div>
     <div style="padding-bottom: 100px;"></div>

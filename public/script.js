@@ -25,4 +25,18 @@ function createDiagrammePersonPerIssue(data){
         labels: ['Issues fermées']
     })
 }
+
+function createAvgBar(data){
+    new Morris.Bar({
+        element: 'bar-average',
+
+        data:[
+            {x: 'Temps moyen', a: parseInt(data)}
+        ],
+
+        xkey:'x',
+        ykeys:['a'],
+        labels:['Nb d\'heures']
+    })
+}
     

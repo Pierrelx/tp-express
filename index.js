@@ -59,6 +59,20 @@ app.get('/closed', (req, res) => {
     })
 })
 
+app.get('/avg-time', (req, res) => {
+    let api = new GitLabApi(settings);
+    api.averageOpenTime('01-01-2019', '07-05-2020')
+    .then(
+        data => {
+            res.send(JSON.stringify(data))
+        }
+    )
+    .catch(err => {
+        console.log('erreur')
+        console.log(err)
+    })
+})
+
 app.listen(3000, () => {
     console.log('Listening on port 3000');
 })
