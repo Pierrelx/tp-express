@@ -5,6 +5,7 @@ const settings = require('app-settings');
 const cors = require('cors');
 
 var app = express();
+var api = new GitLabApi(settings);
 
 app.use(bodyParser.urlencoded({ extended: true })) 
 // parse application/json
@@ -31,8 +32,11 @@ app.get('/', (req, res) => {
     })
 })
 
+app.get('/test-cache', (req, res) => {
+    
+})
+
 app.get('/getstats', (req, res)=> {
-    let api = new GitLabApi(settings);
     res.setHeader('Content-Type', 'application/json');
     api.issuesStats('01-01-2019').then(
         data => {
@@ -46,7 +50,6 @@ app.get('/getstats', (req, res)=> {
 })
 
 app.get('/closed', (req, res) => {
-    let api = new GitLabApi(settings);
     api.listClosedIssues('01-01-2019')
     .then(
         data => {
@@ -60,7 +63,6 @@ app.get('/closed', (req, res) => {
 })
 
 app.get('/avg-time', (req, res) => {
-    let api = new GitLabApi(settings);
     api.averageOpenTime('01-01-2019', '07-05-2020')
     .then(
         data => {
@@ -72,6 +74,21 @@ app.get('/avg-time', (req, res) => {
         console.log(err)
     })
 })
+
+app.get('/issues', (req, res) => {
+    api.listRecentIssues()
+    .then(
+        data => {
+            res.send(JSON.stringify(data));
+        }
+    )
+    .catch(
+        err => {
+        console.log('erreur')
+        console.log(err)
+    })
+})
+
 
 app.listen(3000, () => {
     console.log('Listening on port 3000');

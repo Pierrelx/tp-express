@@ -7,6 +7,7 @@ class GitLabApi {
         this.api_key = settings.api_key
         this.project_id = settings.project_id
         this.url = settings.project_url
+        this.cache = {};
     }
 
     isValidDateRange = function(d1, d2){
@@ -19,8 +20,8 @@ class GitLabApi {
             console.log(chalk`{italic maxDate} {bold.red n'est pas défini}`);
             return false
         }
-        let isMinDateValid = d1.match(validDateFormat).length > 0;
-        let isMaxDateValid = d2.match(validDateFormat).length > 0;
+        let isMinDateValid = validDateFormat.test(d1);
+        let isMaxDateValid = validDateFormat.test(d2);
         if (!isMinDateValid) {
             console.log(chalk`{bold.red Erreur de syntaxe trouvée pour le paramètre} {italic minDate}`);
         }
@@ -28,6 +29,37 @@ class GitLabApi {
             console.log(chalk`{bold.red Erreur de syntaxe trouvée pour le paramètre} {italic maxDate}`);
         }
         return isMinDateValid && isMaxDateValid;
+    }
+
+    cachedGet = function(url, successCallback, failureCallback) {
+        try {
+            if (this.cache[url] != null) {
+                return new Promise((successCallback, failureCallback) => {
+                    console.log(chalk`{yellow GET - ${url}} from cache`)
+                    successCallback(cache[url]);
+                });
+            }
+            else {
+                axios.get(url)
+                .then(data => {
+                    this.cache[url] = data;
+                    console.log(chalk`{yellow GET - ${url}} cached`)
+                    successCallback(data);
+                })
+                .catch(err => failureCallback(err))
+            }            
+        }
+        catch(e) {
+            failureCallback(e)
+        }
+    }
+
+    testCache = function() {
+        return new Promise((resolve, reject) => {
+            axios.get('https://jsonplaceholder.typicode.com/comments')
+            .then(data => console.log(data.length))
+            .catch(err => console.log(chalk.red(err)))
+        });
     }
 
     listRecentIssues = function() {
@@ -65,7 +97,7 @@ class GitLabApi {
                 data => {
                     let opened = data.data.statistics.counts.opened;
                 let closed = data.data.statistics.counts.closed;
-                console.log(chalk`\tissuesStats--> {yellow ${opened} opened} / {green ${closed} closed}`)
+                //console.log(chalk`\tissuesStats--> {yellow ${opened} opened} / {green ${closed} closed}`)
                     resolve({opened: opened, closed: closed})
                 }
             )
@@ -130,7 +162,7 @@ class GitLabApi {
                 data => {                
                     let validIssues = data.data.filter((item) => {
                         if(!item.closed_at || !item.created_at) {
-                            console.log(chalk`Skipped issue n°${item.iid} (created_at = {yellow ${item.created_at}}, closed_at = {yellow ${item.closed_at})}`)
+                            //console.log(chalk`Skipped issue n°${item.iid} (created_at = {yellow ${item.created_at}}, closed_at = {yellow ${item.closed_at})}`)
                             return false;
                         }
                         return true
@@ -141,7 +173,7 @@ class GitLabApi {
                             let created_at = new Date(item.created_at);
                             let diff = closed_at.getTime() - created_at.getTime()
                             let diffInDays = diff / (1000 * 3600 * 24);  //1d = 24h * 3600s * 1000ms
-                            console.log(chalk`Issue n°{greenBright ${item.iid}} closed in {greenBright ${diffInDays.toFixed(2)} days} (${diff.toFixed()} ms) {green ${item.created_at}} -> {green ${item.closed_at}}`)
+                            //console.log(chalk`Issue n°{greenBright ${item.iid}} closed in {greenBright ${diffInDays.toFixed(2)} days} (${diff.toFixed()} ms) {green ${item.created_at}} -> {green ${item.closed_at}}`)
                             return acc + diffInDays;
                         }, 0) / validIssues.length;
 

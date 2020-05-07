@@ -40,6 +40,18 @@
             })
 
             $.ajax({
+                url: '/issues',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data){
+                    createOpenPerDayBar(data);
+                },
+                error: function (err){
+                    console.log(err);
+                }
+            })
+
+            $.ajax({
                 url: '/avg-time',
                 type: 'GET',
                 dataType: 'json',

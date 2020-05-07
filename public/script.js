@@ -1,3 +1,4 @@
+
 function createDonutGraph(data){
     new Morris.Donut({
         element: 'donut-chart',
@@ -37,6 +38,30 @@ function createAvgBar(data){
         xkey:'x',
         ykeys:['a'],
         labels:['Nb d\'heures']
+    })
+}
+
+function createOpenPerDayBar(data){
+    var dates = []
+    var trueData = []
+    for(var i = 0; i < data.length; i++){
+        dates.push(data[i].created_at.substr(0, 10))
+    }
+    var distinctDates = [...new Set(dates)]
+    var counts = {};
+    dates.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
+    for(var i = 0; i < distinctDates.length; i++){
+        trueData.push({x: distinctDates[i], y: counts[distinctDates[i]]});
+    }
+
+    new Morris.Bar({
+        element: 'bar-days',
+
+        data: trueData,
+
+        xkey:'x',
+        ykeys:['y'],
+        labels:['Nb d\'issues']
     })
 }
     
