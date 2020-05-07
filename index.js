@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const GitLabApi = require('./libs/gitlab');
 const settings = require('app-settings');
 const cors = require('cors');
+var schedule = require('node-schedule');
 
 var app = express();
 const server = require('http').Server(app);
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
     api.listRecentIssues()
     .then(
         data => {
+            console.log(data);
             res.render('index', { issues: data });
         }
     )
@@ -76,6 +78,7 @@ app.get('/avg-time/:startDate/:endDate', (req, res) => {
 })
 
 app.get('/issues', (req, res) => {
+    console.log("/issues");
     api.listRecentIssues()
     .then(
         data => {
@@ -89,14 +92,17 @@ app.get('/issues', (req, res) => {
     })
 })
 
+schedule.scheduleJob("0 * * * * *", (fireDate) => {
+    //ouéoué ce bloc là c'est juste pour débugger la liste des isues.assignee.username là
+    // api.listRecentIssues()
+    // .then(data => console.log(data))
+    // .catch(err => console.log(err));
+    console.log("Fired scheduled task", fireDate);
+    io.sockets.emit('gitlab_trigger', {
+        date: fireDate
+    })
+});
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log('Listening on port 3000');
 })
-
-// app.post('/add', (req, res) => {
-//     let n = req.body.name;
-//     names.push(n);
-//     console.log(`${n} ajouté`)
-//     res.redirect('/');
-// })
