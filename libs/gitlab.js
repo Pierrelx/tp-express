@@ -42,11 +42,11 @@ class GitLabApi {
             if (this.cache[url] != null) {
                 try {
                     let data = this.cache[url];
-                    console.log(chalk`Fetch {yellow.italic GET - ${url}} from cache`)
+                    console.log(chalk`{green.bold Fetch from cache} {yellow.italic {bold GET - ${url}}`)
                     successCallback(data); 
                 }
                 catch(e) {
-                    console.log(chalk`{red Could not fetch {italic GET - ${url}} from cache}`);
+                    console.log(chalk`{red {bold ERR} fetch from cache {italic GET - ${url}}}`);
                     failureCallback(e);
                 }
             }
@@ -54,7 +54,7 @@ class GitLabApi {
                 axios.get(url)
                     .then(data => {
                         this.cache[url] = data;
-                        console.log(chalk`{yellow GET - ${url}} cached`)
+                        console.log(chalk`{greenBright.bold Cached} {yellow GET - ${url}}`)
                         successCallback(data);
                     })
                     .catch(err => failureCallback(err))

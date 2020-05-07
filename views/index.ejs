@@ -5,63 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%- include('libs'); -%>
     <title>Index</title>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
-    <link rel="stylesheet" type="text/css" href="../public/css/style.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
     <script type="text/javascript" src="../public/script.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
-            $.ajax({
-                url: '/getstats',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data){
-                    createDonutGraph(data);
-                },
-                error: function (err){
-                    console.log(err);
-                }
+            Date.prototype.toDateInputValue = (function() {
+                var local = new Date(this);
+                local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+                return local.toJSON().slice(0,10);
+            });
+
+            $('#end').val(new Date().toDateInputValue());
+            $('#start').val(new Date("2019-01-01").toDateInputValue());
+
+            loadGraphs();
+
+            $('#start').on('change', function(){
+                loadGraphs()
+            })
+            $('#end').on('change', function(){
+                loadGraphs()
             })
 
-            $.ajax({
-                url: '/closed',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data){
-                    createDiagrammePersonPerIssue(data);
-                },
-                error: function (err){
-                    console.log(err);
-                }
-            })
-
-            $.ajax({
-                url: '/issues',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data){
-                    createOpenPerDayBar(data);
-                },
-                error: function (err){
-                    console.log(err);
-                }
-            })
-
-            $.ajax({
-                url: '/avg-time',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data){
-                    createAvgBar(data);
-                },
-                error: function (err){
-                    console.log(err);
-                }
-            })
+            function loadGraphs(){
+                var startDate = $('#start').val()
+                var endDate = $('#end').val()
+    
+                $.ajax({
+                    url: '/getstats/'+startDate,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        createDonutGraph(data);
+                    },
+                    error: function (err){
+                        console.log(err);
+                    }
+                })
+    
+                $.ajax({
+                    url: '/closed/'+startDate,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        createDiagrammePersonPerIssue(data);
+                    },
+                    error: function (err){
+                        console.log(err);
+                    }
+                })
+    
+                $.ajax({
+                    url: '/issues',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        createOpenPerDayBar(data);
+                    },
+                    error: function (err){
+                        console.log(err);
+                    }
+                })
+    
+                $.ajax({
+                    url: '/avg-time/'+startDate+'/'+endDate,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        createAvgBar(data);
+                    },
+                    error: function (err){
+                        console.log(err);
+                    }
+                })
+            }
+            
 
             $('#issues').DataTable();
         })
@@ -70,25 +87,20 @@
 <body>
     <div class="container">   
         <h2>Issues gitlab</h2>
-        <hr>
+        <div class="divider"></div>
         <h4>Filtrer avec des dates</h4>
         <div class="divFiltre">
-            <label for="start">Start date:</label>
+            <label for="start">Date de début:</label>
 
-            <input type="date" id="start" name="trip-start" min="01-01-2019" max="07-05-2020">
+            <input type="date" id="start" name="trip-start" min="01-01-2019" max="07-05-2020" required>
     
-            <label for="end">End date:</label>
-    
-            <input type="date" id="end" name="trip-end" min="01-01-2019" max="07-05-2020">
+            <label for="end">Date de fin:</label>
             
+            <input type="date" id="end" name="trip-end" min="01-01-2019" max="07-05-2020" required>
+            <span class="validity"></span>
         </div>
-        <div class="divFiltre">
-            <input type="submit">
-        </div>
-        
-        
-
-        <hr>
+<!-- 
+        <div class="divider"></div>
         <div class="row">
             <div class="col s12 m8 push-m2 ">
                 <form action="/getstats" method="GET">
@@ -110,15 +122,14 @@
                     </div>
                 </form>
             </div>
-        </div>        
+        </div>         -->
         <div class="divider"></div>
-        <hr>
         <h4>Statistiques</h4>
         <div id="donut-chart" style="height: 300px;"></div>
-        <hr>
+        <div class="divider"></div>
         <h4>Qui a fermé ?</h4>
         <div id="bar-closed" style="height: 300px;"></div>
-        <hr>
+        <div class="divider"></div>
         <h4>Liste des issues</h4>
         <table id="issues" class="display">
             <thead>
@@ -142,11 +153,11 @@
                 <%}%>
             </tbody>
         </table>
-        <hr>
+        <div class="divider"></div>
         <h4>Temps d'ouverture des tickets</h4>
         <div id="bar-average" style="height: 300px;"></div>
 
-        <hr>
+        <div class="divider"></div>
         <h4>Nombre d'issue ouvertes par jour</h4>
         <div id="bar-days" style="height: 300px;"></div>
 

@@ -32,9 +32,9 @@ app.get('/', (req, res) => {
     })
 })
 
-app.get('/getstats', (req, res)=> {
+app.get('/getstats/:date', (req, res)=> {
     res.setHeader('Content-Type', 'application/json');
-    api.issuesStats('01-01-2019').then(
+    api.issuesStats(req.params.date).then(
         data => {
             res.send(JSON.stringify(data));
         }
@@ -45,8 +45,8 @@ app.get('/getstats', (req, res)=> {
     });
 })
 
-app.get('/closed', (req, res) => {
-    api.listClosedIssues('01-01-2019')
+app.get('/closed/:date', (req, res) => {
+    api.listClosedIssues(req.params.date)
     .then(
         data => {
             res.send(JSON.stringify(data))
@@ -58,8 +58,10 @@ app.get('/closed', (req, res) => {
     })
 })
 
-app.get('/avg-time', (req, res) => {
-    api.averageOpenTime('01-01-2019', '07-05-2020')
+app.get('/avg-time/:startDate/:endDate', (req, res) => {
+    let startDate = req.params.startDate;
+    let endDate = req.params.endDate;
+    api.averageOpenTime(startDate, endDate)
     .then(
         data => {
             res.send(JSON.stringify(data))
