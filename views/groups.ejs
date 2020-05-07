@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include('libs'); -%>
+    <title>Groupes</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Groupes</h1>
+        <% for(let group of groups) { %>
+        <h4>></h4>
+        <ul class="collection">            
+            <% for(let name of group) {%>
+                <li class="collection-item">
+                    <i class="material-icons prefix">account_circle</i>
+                    <span><%= name %></span>
+                </li>
+            <%}%>
+        </ul>
+        <div class="divider"></div>
+        <%}%>
+        
+
+    </div>
+    <script>
+        M.AutoInit()
+    </script>    
+</body>
+</html>
