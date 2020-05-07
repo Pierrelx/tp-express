@@ -32,10 +32,6 @@ app.get('/', (req, res) => {
     })
 })
 
-app.get('/test-cache', (req, res) => {
-    
-})
-
 app.get('/getstats', (req, res)=> {
     res.setHeader('Content-Type', 'application/json');
     api.issuesStats('01-01-2019').then(

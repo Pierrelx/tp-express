@@ -10,6 +10,9 @@ class GitLabApi {
         this.cache = {};
     }
 
+    /**
+     * Vérifie que les dates sont au bon format
+     */
     isValidDateRange = function(d1, d2){
         let validDateFormat = /\d{4}[-\/]\d{2}[-\/]\d{2}/;
         if(typeof d1 == 'undefined' && d1 !== null){
@@ -31,6 +34,9 @@ class GitLabApi {
         return isMinDateValid && isMaxDateValid;
     }
 
+    /**
+     * Effectue la requête GET - récupère le résultat depuis le cache si possible
+     */
     get = function(url) {
         return new Promise((successCallback, failureCallback) => {
             if (this.cache[url] != null) {

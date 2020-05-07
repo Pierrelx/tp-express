@@ -37,7 +37,7 @@ function createAvgBar(data){
 
         xkey:'x',
         ykeys:['a'],
-        labels:['Nb d\'heures']
+        labels:['Nb de jours']
     })
 }
 
