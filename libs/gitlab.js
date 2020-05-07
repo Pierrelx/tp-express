@@ -31,34 +31,28 @@ class GitLabApi {
         return isMinDateValid && isMaxDateValid;
     }
 
-    cachedGet = function(url, successCallback, failureCallback) {
-        try {
+    get = function(url) {
+        return new Promise((successCallback, failureCallback) => {
             if (this.cache[url] != null) {
-                return new Promise((successCallback, failureCallback) => {
-                    console.log(chalk`{yellow GET - ${url}} from cache`)
-                    successCallback(cache[url]);
-                });
+                try {
+                    let data = this.cache[url];
+                    console.log(chalk`Fetch {yellow.italic GET - ${url}} from cache`)
+                    successCallback(data); 
+                }
+                catch(e) {
+                    console.log(chalk`{red Could not fetch {italic GET - ${url}} from cache}`);
+                    failureCallback(e);
+                }
             }
             else {
                 axios.get(url)
-                .then(data => {
-                    this.cache[url] = data;
-                    console.log(chalk`{yellow GET - ${url}} cached`)
-                    successCallback(data);
-                })
-                .catch(err => failureCallback(err))
-            }            
-        }
-        catch(e) {
-            failureCallback(e)
-        }
-    }
-
-    testCache = function() {
-        return new Promise((resolve, reject) => {
-            axios.get('https://jsonplaceholder.typicode.com/comments')
-            .then(data => console.log(data.length))
-            .catch(err => console.log(chalk.red(err)))
+                    .then(data => {
+                        this.cache[url] = data;
+                        console.log(chalk`{yellow GET - ${url}} cached`)
+                        successCallback(data);
+                    })
+                    .catch(err => failureCallback(err))
+            }
         });
     }
 
@@ -68,7 +62,7 @@ class GitLabApi {
     
             var issues = [];
             
-            axios.get(url)
+            this.get(url)
             .then(
                 data => {
                     if(data.data)
@@ -92,7 +86,7 @@ class GitLabApi {
     issuesStats = function(dateFilter) {
         return new Promise((resolve, reject) => {
             let issuesStats = this.url + '/projects/' + this.project_id + '/issues_statistics?created_after='+dateFilter
-            axios.get(issuesStats)
+            this.get(issuesStats)
             .then(
                 data => {
                     let opened = data.data.statistics.counts.opened;
@@ -112,8 +106,7 @@ class GitLabApi {
         return new Promise((resolve, reject) => {
             let names = []
             let url = this.url + '/projects/' + this.project_id + '/issues?state=closed&created_after='+datetime
-            axios
-                .get(url)
+            this.get(url)
                 .then(response => {
                     for(var i = 0; i < response.data.length; i++){
                         if(response.data[i].closed_by !== null && response.data[i].state ==='closed'){
@@ -136,8 +129,7 @@ class GitLabApi {
         //Retourne la liste des issues en état opened. 
         //Ajouter une plage de date en paramètre pour filtrer sur la date de création des issues.
         let url = this.url + '/projects/' + this.project_id + '/issues?state=opened&created_after='+datetime
-        axios
-            .get(url)
+        this.get(url)
             .then(response => {
                 console.log(response)              
             })
@@ -157,7 +149,7 @@ class GitLabApi {
             //Prend en paramètre une date de début et une date de fin. 
             let url = this.url + '/projects/' + this.project_id + '/issues?created_after='+dateDebut+'&created_before='+dateFin
                 
-            axios.get(url)
+            this.get(url)
             .then(
                 data => {                
                     let validIssues = data.data.filter((item) => {

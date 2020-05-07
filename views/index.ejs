@@ -72,14 +72,46 @@
         <h2>Issues gitlab</h2>
         <hr>
         <h4>Filtrer avec des dates</h4>
-        <label for="start">Start date:</label>
+        <div class="divFiltre">
+            <label for="start">Start date:</label>
 
-        <input type="date" id="start" name="trip-start">
+            <input type="date" id="start" name="trip-start" min="01-01-2019" max="07-05-2020">
+    
+            <label for="end">End date:</label>
+    
+            <input type="date" id="end" name="trip-end" min="01-01-2019" max="07-05-2020">
+            <span class="validity"></span>
+        </div>
+        <div class="divFiltre">
+            <input type="submit">
+        </div>
+        
+        
 
-        <label for="end">End date:</label>
-
-        <input type="date" id="end" name="trip-end">
-
+        <hr>
+        <div class="row">
+            <div class="col s12 m8 push-m2 ">
+                <form action="/getstats" method="GET">
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">/getStats</span>
+                            <div class="row">
+                                <div class="col s12 m6">
+                                    <label for="name">Issues à partir du</label>
+                                    <input class="datepicker" type="text" name="date">
+                                </div>
+                                <div class="col s12 m6">
+                                </div>                            
+                            </div>
+                        </div>
+                        <div class="card-action">
+                            <button class="waves-effect waves-light btn" type="submit">Envoyer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>        
+        <div class="divider"></div>
         <hr>
         <h4>Statistiques</h4>
         <div id="donut-chart" style="height: 300px;"></div>
@@ -121,6 +153,7 @@
     </div>
     <div style="padding-bottom: 100px;"></div>
     <script>
+        M.Datepicker.defaults.format = 'yyyy-mm-dd'
         M.AutoInit()
     </script>    
 </body>

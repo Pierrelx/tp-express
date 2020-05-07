@@ -1,9 +1,27 @@
 label {
     display: block;
     font: 1rem 'Fira Sans', sans-serif;
+    display: inline-block;
+    width: 300px;
 }
 
 input,
 label {
     margin: .4rem 0;
 }
+
+.divFiltre {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  input:invalid+span:after {
+    content: '✖';
+    padding-left: 5px;
+  }
+  
+  input:valid+span:after {
+    content: '✓';
+    padding-left: 5px;
+  }
