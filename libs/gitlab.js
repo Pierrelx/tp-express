@@ -42,7 +42,7 @@ class GitLabApi {
             if (this.cache[url] != null) {
                 try {
                     let data = this.cache[url];
-                    console.log(chalk`{green.bold Fetch from cache} {yellow.italic {bold GET - ${url}}}`)
+                    console.log(chalk`{green.bold Fetch from cache} {yellow.italic {bold GET - ${url}}S`)
                     successCallback(data); 
                 }
                 catch(e) {

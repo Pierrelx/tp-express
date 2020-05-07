@@ -19,6 +19,7 @@
     "express": "^4.17.1",
     "minimist": "^1.2.5",
     "node-dev": "^4.0.0",
-    "shuffle-array": "^1.0.1"
+    "shuffle-array": "^1.0.1",
+    "socket.io": "^2.3.0"
   }
 }

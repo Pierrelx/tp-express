@@ -1,65 +1,86 @@
+var donutchart;
+var barclosed;
+var baraverage;
+var bardays;
 
 function createDonutGraph(data){
-    $('#donut-chart').empty();
-    new Morris.Donut({
-        element: 'donut-chart',
-        data:[
-            {label:'Ouvertes', value: data.opened},
-            {label:'Fermées', value: data.closed},
-        ],
-        colors: ['#ff0000','0000ff']
-    })
+    let mappedData = [
+        {label:'Ouvertes', value: data.opened},
+        {label:'Fermées', value: data.closed},
+    ];
+    if (donutchart) {
+        donutchart.setData(mappedData);
+    }
+    else {
+        donutchart = new Morris.Donut({
+            element: 'donut-chart',
+            data:mappedData,
+            colors: ['#ff0000','0000ff']
+        })
+    }    
 }
 
 function createDiagrammePersonPerIssue(data){
-    $('#bar-closed').empty();
-
-    new Morris.Bar({
-        element: 'bar-closed',
-        data:[
-            {x: "Bryce.m", a: parseInt(data["Bryce.m"])},
-            {x: "romzinator", a: parseInt(data["romzinator"])}
-        ],
-        xkey: 'x',
-        ykeys: ['a'],
-        labels: ['Issues fermées']
-    })
+    let mappedData = [];
+    for (let prop in data) {
+        mappedData.push({x: `${prop}`, a: parseInt(data[prop])});
+    }
+    if (barclosed) {
+        barclosed.setData(mappedData);
+    }
+    else {
+        barclosed = new Morris.Bar({
+            element: 'bar-closed',
+            data: mappedData,
+            xkey: 'x',
+            ykeys: ['a'],
+            labels: ['Issues fermées']
+        })
+    }  
 }
 
 function createAvgBar(data){
-    $('#bar-average').empty();
-    new Morris.Bar({
-        element: 'bar-average',
-        data:[
-            {x: 'Temps moyen', a: parseInt(data)}
-        ],
-        xkey:'x',
-        ykeys:['a'],
-        labels:['Nb de jours']
-    })
+    let mappedData = [
+        {x: 'Temps moyen', a: parseInt(data)}
+    ];
+
+    if (baraverage) {
+        baraverage.setData(mappedData);
+    }
+    else {
+        baraverage = new Morris.Bar({
+            element: 'bar-average',
+            data: mappedData,
+            xkey:'x',
+            ykeys:['a'],
+            labels:['Nb de jours']
+        })
+    }  
 }
 
 function createOpenPerDayBar(data){
-    var dates = []
-    var trueData = []
-    for(var i = 0; i < data.length; i++){
-        dates.push(data[i].created_at.substr(0, 10))
-    }
+    var dates = data.map((item) => item.created_at.substr(0, 10));
     var distinctDates = [...new Set(dates)]
-    var counts = {};
-    dates.forEach(function(x) { counts[x] = (counts[x] || 0)+1; });
-    for(var i = 0; i < distinctDates.length; i++){
-        trueData.push({x: distinctDates[i], y: counts[distinctDates[i]]});
+    let counts = {};
+
+    distinctDates.forEach((date) => 
+        counts[date] = dates.filter((d) => d == date).length
+    );
+    let trueData = distinctDates.map((date) => {
+        return { x: date, y: counts[date] };
+    });
+
+    if (bardays) {
+        bardays.setData(trueData);
     }
-
-    $('#bar-days').empty();
-
-    new Morris.Bar({
-        element: 'bar-days',
-        data: trueData,
-        xkey:'x',
-        ykeys:['y'],
-        labels:['Nb d\'issues']
-    })
+    else {
+        bardays = new Morris.Bar({
+            element: 'bar-days',
+            data: trueData,
+            xkey:'x',
+            ykeys:['y'],
+            labels:['Nb d\'issues']
+        })
+    }  
 }
     
