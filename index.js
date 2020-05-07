@@ -9,7 +9,7 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true })) 
 // parse application/json
 app.use(bodyParser.json())
-// app.use(cors())
+app.use(cors())
 // app.options('*', cors())
 
 app.use('/public', express.static(__dirname + '/public'));
